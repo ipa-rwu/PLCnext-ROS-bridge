@@ -1,18 +1,18 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.10.2)
 project(phoenix_bridge)
 
 add_compile_options(-std=c++11)
 
 add_custom_target(
- cog ALL
- WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
- COMMAND echo "Generating bridge types based on config file"
- COMMAND cog -r ${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/include_types.h
- COMMAND cog -r ${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/phoenix_bridge.h
- COMMAND cog -r ${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/write_conversions.h
- COMMAND cog -r ${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/read_conversions.h
- COMMAND cog -r ${CMAKE_CURRENT_SOURCE_DIR}/src/phoenix_bridge.cpp
- COMMENT "COGGING"
+  cog ALL
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  COMMAND echo "Generating bridge types based on config file"
+  COMMAND cog -r ${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/include_types.h
+  COMMAND cog -r ${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/phoenix_bridge.h
+  COMMAND cog -r ${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/write_conversions.h
+  COMMAND cog -r ${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/read_conversions.h
+  COMMAND cog -r ${CMAKE_CURRENT_SOURCE_DIR}/src/phoenix_bridge.cpp
+  COMMENT "COGGING"
 )
 
 find_package(catkin REQUIRED COMPONENTS
@@ -24,30 +24,30 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(gRPC CONFIG REQUIRED)
 
 list(APPEND MSG_TYPES_TO_LINK
-    geometry_msgs
-    nav_msgs
-    std_msgs
+  geometry_msgs
+  nav_msgs
+  std_msgs
 )
 
 add_message_files(
   FILES
   SetIO.msg
-  )
+)
 
-  add_service_files(
-    FILES
-    AnalogIO.srv
-    BatchGetIO.srv
-    BatchSetIO.srv
-    SingleGetIO.srv
-    SingleSetIO.srv
-    )
+add_service_files(
+  FILES
+  AnalogIO.srv
+  BatchGetIO.srv
+  BatchSetIO.srv
+  SingleGetIO.srv
+  SingleSetIO.srv
+)
 
-    catkin_python_setup()
+catkin_python_setup()
 
-    generate_messages(
-      DEPENDENCIES
-      std_msgs
+generate_messages(
+  DEPENDENCIES
+  std_msgs
 )
 
 catkin_package(
@@ -56,7 +56,7 @@ catkin_package(
   roscpp
   roslint
   std_msgs
-  )
+)
 
 # Find all required messages
 foreach(msg ${MSG_TYPES_TO_LINK})
@@ -72,60 +72,60 @@ include_directories(
 set(WILDCARD_SOURCE *.cpp *.cc)
 set(WILDCARD_HEADER *.h *.h *.hxx)
 file(GLOB_RECURSE Sources
-    include/${PROJECT_NAME}/${WILDCARD_SOURCE}
+  include/${PROJECT_NAME}/${WILDCARD_SOURCE}
 )
 file(GLOB_RECURSE Headers
-    include/${PROJECT_NAME}/${WILDCARD_HEADER}
+  include/${PROJECT_NAME}/${WILDCARD_HEADER}
 )
 
 add_executable(${PROJECT_NAME}_node
-                    src/phoenix_bridge_node.cpp
-                    src/phoenix_bridge.cpp
-                    ${Headers} ${Sources})
+  src/phoenix_bridge_node.cpp
+  src/phoenix_bridge.cpp
+  ${Headers} ${Sources})
 add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} cog)
 target_link_libraries(${PROJECT_NAME}_node
   gRPC::gpr gRPC::grpc gRPC::grpc++
   ${catkin_LIBRARIES}
 )
 target_include_directories(${PROJECT_NAME}_node
-    PUBLIC
-    $<BUILD_INTERFACE:${rclcpp_INCLUDE_DIRS}>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs/Includes>
+  PUBLIC
+  $<BUILD_INTERFACE:${rclcpp_INCLUDE_DIRS}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs/Includes>
 )
 
 add_executable(phoenix_io_services
-                    src/phoenix_io_services_node.cpp
-                    src/phoenix_io_services.cpp
-                    ${Headers} ${Sources})
+  src/phoenix_io_services_node.cpp
+  src/phoenix_io_services.cpp
+  ${Headers} ${Sources})
 add_dependencies(phoenix_io_services ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} cog)
 target_link_libraries(phoenix_io_services
   gRPC::gpr gRPC::grpc gRPC::grpc++
   ${catkin_LIBRARIES}
 )
 target_include_directories(phoenix_io_services
-    PUBLIC
-    $<BUILD_INTERFACE:${rclcpp_INCLUDE_DIRS}>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs/Includes>
+  PUBLIC
+  $<BUILD_INTERFACE:${rclcpp_INCLUDE_DIRS}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs/Includes>
 )
 
 add_executable(liveliness_check
-                    src/liveliness_check.cpp
-                    ${Headers} ${Sources})
+  src/liveliness_check.cpp
+  ${Headers} ${Sources})
 add_dependencies(liveliness_check ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(liveliness_check
   gRPC::gpr gRPC::grpc gRPC::grpc++
   ${catkin_LIBRARIES}
 )
 target_include_directories(liveliness_check
-    PUBLIC
-    $<BUILD_INTERFACE:${rclcpp_INCLUDE_DIRS}>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs/Includes>
+  PUBLIC
+  $<BUILD_INTERFACE:${rclcpp_INCLUDE_DIRS}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs/Includes>
 )
 
 install(DIRECTORY launch/
@@ -153,66 +153,63 @@ install(TARGETS liveliness_check
 )
 
 if(CATKIN_ENABLE_TESTING)
-    find_package(rostest REQUIRED)
+  find_package(rostest REQUIRED)
 
-    # --- UNIT TESTS----
+  # --- UNIT TESTS----
+  add_rostest_gtest(test_write_conversion
+    tests/unit_tests/test_write_conversion.test
+    tests/unit_tests/test_write_conversion.cpp
+    ${Headers} ${Sources})
+  add_dependencies(test_write_conversion ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+  target_link_libraries(test_write_conversion gRPC::gpr gRPC::grpc gRPC::grpc++ ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
+  target_include_directories(test_write_conversion
+    PUBLIC
+    $<BUILD_INTERFACE:${rclcpp_INCLUDE_DIRS}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs/Includes>
+  )
 
-    add_rostest_gtest(test_write_conversion
-        tests/unit_tests/test_write_conversion.test
-        tests/unit_tests/test_write_conversion.cpp
-        ${Headers} ${Sources})
-    add_dependencies(test_write_conversion ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-    target_link_libraries(test_write_conversion gRPC::gpr gRPC::grpc gRPC::grpc++ ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
-    target_include_directories(test_write_conversion
-        PUBLIC
-        $<BUILD_INTERFACE:${rclcpp_INCLUDE_DIRS}>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs/Includes>
-    )
+  add_rostest_gtest(test_read_conversion
+    tests/unit_tests/test_read_conversion.test
+    tests/unit_tests/test_read_conversion.cpp
+    ${Headers} ${Sources})
+  add_dependencies(test_read_conversion ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+  target_link_libraries(test_read_conversion gRPC::gpr gRPC::grpc gRPC::grpc++ ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
+  target_include_directories(test_read_conversion
+    PUBLIC
+    $<BUILD_INTERFACE:${rclcpp_INCLUDE_DIRS}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs/Includes>
+  )
 
-    add_rostest_gtest(test_read_conversion
-        tests/unit_tests/test_read_conversion.test
-        tests/unit_tests/test_read_conversion.cpp
-        ${Headers} ${Sources})
-    add_dependencies(test_read_conversion ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-    target_link_libraries(test_read_conversion gRPC::gpr gRPC::grpc gRPC::grpc++ ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
-    target_include_directories(test_read_conversion
-        PUBLIC
-        $<BUILD_INTERFACE:${rclcpp_INCLUDE_DIRS}>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs/Includes>
-    )
-
-    # --- COMPONENT TESTS----
-
-    add_rostest_gtest(test_topics
-        tests/component_tests/test_topics.test
-        tests/component_tests/test_topics.cpp
-        ${Headers} ${Sources})
-    add_dependencies(test_topics ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-    target_link_libraries(test_topics gRPC::gpr gRPC::grpc gRPC::grpc++ ${catkin_LIBRARIES} ${GTEST_LIBRARIES} gmock)
-    target_include_directories(test_topics
-        PUBLIC
-        $<BUILD_INTERFACE:${rclcpp_INCLUDE_DIRS}>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs/Includes>
-    )
-
+  # --- COMPONENT TESTS----
+  add_rostest_gtest(test_topics
+    tests/component_tests/test_topics.test
+    tests/component_tests/test_topics.cpp
+    ${Headers} ${Sources})
+  add_dependencies(test_topics ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+  target_link_libraries(test_topics gRPC::gpr gRPC::grpc gRPC::grpc++ ${catkin_LIBRARIES} ${GTEST_LIBRARIES} gmock)
+  target_include_directories(test_topics
+    PUBLIC
+    $<BUILD_INTERFACE:${rclcpp_INCLUDE_DIRS}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/phoenix_bridge/ServiceStubs/Includes>
+  )
 endif()
 
 set(files_to_lint
-    include/${PROJECT_NAME}/bridge_type.h
-    include/${PROJECT_NAME}/params_struct.h
-    include/${PROJECT_NAME}/phoenix_bridge.h
-    include/${PROJECT_NAME}/phoenix_comm.h
-    include/${PROJECT_NAME}/phoenix_io_services.h
-    src/phoenix_bridge_node.cpp
-    src/phoenix_bridge.cpp
-    src/phoenix_io_services_node.cpp
-    src/phoenix_io_services.cpp
-  )
+  include/${PROJECT_NAME}/bridge_type.h
+  include/${PROJECT_NAME}/params_struct.h
+  include/${PROJECT_NAME}/phoenix_bridge.h
+  include/${PROJECT_NAME}/phoenix_comm.h
+  include/${PROJECT_NAME}/phoenix_io_services.h
+  src/phoenix_bridge_node.cpp
+  src/phoenix_bridge.cpp
+  src/phoenix_io_services_node.cpp
+  src/phoenix_io_services.cpp
+)
 set(ROSLINT_CPP_OPTS "--filter=-legal/copyright")
 roslint_cpp(${files_to_lint})

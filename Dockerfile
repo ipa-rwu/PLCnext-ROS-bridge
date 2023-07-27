@@ -2,9 +2,9 @@
 ARG BUILDER_SUFFIX=
 ARG BUILDER_PREFIX=
 ARG ROS_DISTRO=
-FROM public.ecr.aws/docker/library/ros:${ROS_DISTRO}-ros-core as base
+ARG ORG=
+FROM ${ORG}:${ROS_DISTRO}-ros-core as base
 FROM ${BUILDER_PREFIX}builder${BUILDER_SUFFIX} as builder
-
 
 FROM base as deps
 COPY . /root/ws/src/

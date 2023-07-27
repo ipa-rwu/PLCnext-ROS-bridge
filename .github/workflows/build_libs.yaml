@@ -1,0 +1,65 @@
+name: build_grpc_libs
+on:
+  push
+
+env:
+  BUILDER_PREFIX: "ghcr.io/ipa-rwu/"
+  BUILDER_SUFFIX: ":latest"
+  CMAKE_ARGS: "-DCMAKE_BUILD_TYPE=Release"
+  REGISTRY: ghcr.io
+  DEP_REPO_URL: https://github.com/PLCnext/gRPC-client-deps.git
+  DEP_REPO_NAME: gRPC-client-deps
+
+jobs:
+  EnvSetup:
+    runs-on: ubuntu-latest
+    name: Setup Dynamic Environment Variables
+    outputs:
+      registry: ${{ steps.set-output-defaults.outputs.registry }}
+      build-prefix: ${{ steps.set-output-defaults.outputs.build-prefix }}
+      build-suffix: ${{ steps.set-output-defaults.outputs.build-suffix }}
+      cmake-args: ${{ steps.set-output-defaults.outputs.cmake-args }}
+      ros-distro: ${{ steps.current-ros-distro.outputs.ros-distro }}
+      defult-branch: ${{ steps.current-ros-distro.outputs.defult-branch }}
+      dep-repo-url: ${{ steps.set-output-defaults.outputs.dep-repo-url }}
+      dep-repo-name: ${{ steps.set-output-defaults.outputs.dep-repo-name }}
+    steps:
+      - name: set outputs with default values
+        id: set-output-defaults
+        run: |
+          echo "registry=$REGISTRY" >> $GITHUB_OUTPUT
+          echo "build-prefix=$BUILDER_PREFIX" >> $GITHUB_OUTPUT
+          echo "build-suffix=$BUILDER_SUFFIX" >> $GITHUB_OUTPUT
+          echo "cmake-args=$CMAKE_ARGS" >> $GITHUB_OUTPUT
+          echo "dep-repo-url=$DEP_REPO_URL" >> $GITHUB_OUTPUT
+          echo "dep-repo-name=$DEP_REPO_NAME" >> $GITHUB_OUTPUT
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v7
+      - name: Get ROS Distro and default branch
+        id: current-ros-distro
+        run: |
+          current_branch=${{ steps.branch-name.outputs.current_branch }}
+          echo "ros-distro=${current_branch%\/*}" >> $GITHUB_OUTPUT
+          echo "defult-branch=${current_branch%\/*}/devel" >> $GITHUB_OUTPUT
+  plcnext_ros_bridge:
+    needs: [EnvSetup]
+    strategy:
+        matrix:
+          platform:
+            - {arch: linux/arm/v7, org: arm32v7/ros}
+            - {arch: linux/amd64, org: public.ecr.aws/docker/library/ros}
+    uses: ./.github/workflows/test_code_build_image_workflow_reuse.yaml
+    with:
+      context-path: .
+      ros-distro: noetic
+      registry: ${{needs.EnvSetup.outputs.registry}}
+      image-name: ${{ github.repository_owner }}/plcnext_ros_bridge
+      build-prefix: ${{needs.EnvSetup.outputs.build-prefix}}
+      build-suffix: ${{needs.EnvSetup.outputs.build-suffix}}
+      cmake-args: ${{needs.EnvSetup.outputs.cmake-args}}
+      platforms: ${{ matrix.platform.arch }}
+      defult-branch: ${{needs.EnvSetup.outputs.defult-branch}}
+      org: ${{ matrix.platform.org }}
+      dep-repo-url: ${{needs.EnvSetup.outputs.dep-repo-url}}
+      dep-repo-name: ${{needs.EnvSetup.outputs.dep-repo-name}}

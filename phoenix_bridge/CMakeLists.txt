@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 3.20.0)
 project(phoenix_bridge)
 
 add_compile_options(-std=c++11)

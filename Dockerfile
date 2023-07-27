@@ -17,9 +17,11 @@ ARG DEP_REPO_NAME=
 ENV DEP_REPO_NAME $DEP_REPO_NAME
 ARG DEP_REPO_URL=
 ENV DEP_REPO_URL $DEP_REPO_URL
-RUN echo "DEP_REPO_URL=$DEP_REPO_URL DEP_REPO_NAME=$DEP_REPO_NAME"
 RUN apt-get update -qq && \
-    /builder/workspace.bash install_from_rosinstall /root/ws/src/dep.repo /root/ws/src/
+    apt-get install gettext-base && \
+    envsubst < /root/ws/src/dep.repo > /root/ws/src/tmp.repo && \
+    mv /root/ws/src/tmp.repo /root/ws/src/dep.repo
+RUN /builder/workspace.bash install_from_rosinstall /root/ws/src/dep.repo /root/ws/src/
 RUN cd /root/ws/src/${DEP_REPO_NAME}/plcnext_deps/ && \
     /root/ws/src/${DEP_REPO_NAME}/plcnext_deps/dep_copy.sh ${ROS_DISTRO} && \
     rm -rf /var/lib/apt/lists/*

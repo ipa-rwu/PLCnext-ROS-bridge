@@ -45,10 +45,11 @@ jobs:
   plcnext_ros_bridge:
     needs: [EnvSetup]
     strategy:
-        matrix:
-          platform:
-            - {arch: linux/arm/v7, org: arm32v7/ros}
-            - {arch: linux/amd64, org: public.ecr.aws/docker/library/ros}
+      fail-fast: false
+      matrix:
+        platform:
+          - {arch: linux/arm/v7, org: arm32v7/ros}
+          - {arch: linux/amd64, org: public.ecr.aws/docker/library/ros}
     uses: ./.github/workflows/test_code_build_image_workflow_reuse.yaml
     with:
       context-path: .

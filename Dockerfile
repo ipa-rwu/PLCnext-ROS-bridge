@@ -27,7 +27,6 @@ RUN cd /root/ws/src/${DEP_REPO_NAME}/plcnext_deps/ && \
     rm -rf /var/lib/apt/lists/*
 
 FROM deps as pre_build
-COPY . /root/ws/src/
 RUN apt-get update -qq && \
     /builder/workspace.bash update_list /root/ws && \
     rm -rf /var/lib/apt/lists/*
